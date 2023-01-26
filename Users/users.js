@@ -13,12 +13,12 @@ router.use((req, res, next) => {
 router.post('/registration', async (req, res) => {
     let { username, email, phone, password, role, schoolName } = req.body;
 
-    const validPassword = password.match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/)
+    // const validPassword = password.match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/)
 
-    if (!validPassword) {
-        res.status(409).send('Password should contain: Upper case, lower case letter and have special symbol with at least 8 characters.')
-        return;
-    }
+    // if (!validPassword) {
+    //     res.status(409).send('Password should contain: Upper case, lower case letter and have special symbol with at least 8 characters.')
+    //     return;
+    // }
 
     password = password.toString();
     const passwordHash = await bcrypt.hash(password, 10);
