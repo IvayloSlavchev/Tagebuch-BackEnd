@@ -1,4 +1,4 @@
-const { Router } = require('express');
+ const { Router } = require('express');
 const cors = require('cors');
 const db = require('../database.js');
 const router = Router();
@@ -33,14 +33,14 @@ router.post('/', async (req, res) => {
 
     if (notebookName && ownedBy) {
         try {
-            db.query(`SELECT * FROM NotebookRecords WHERE notebookName= ?`,
+            db.query(`SELECT * FROM notebookRecords WHERE notebookName= ?`,
                 [notebookName],
                 function (err, response) {
                     if (err) {
                         throw new Error(err);
                     } else {
                         if (response?.length == 0) {
-                            db.promise().query(`INSERT INTO notebookrecords(notebookName, notebookDescription, notebookTexts, ownedBy, user_id) VALUES('${notebookName}', '${notebookDescription}', '${notebookTexts}', '${ownedBy}', '${user_id[0][0].id}')`)
+                            db.promise().query(`INSERT INTO notebookRecords(notebookName, notebookDescription, notebookTexts, ownedBy, user_id) VALUES('${notebookName}', '${notebookDescription}', '${notebookTexts}', '${ownedBy}', '${user_id[0][0].id}')`)
                             res.status(201).send('Notebook created!')
                         } else {
                             res.status(409).send('Notebook already exists');
