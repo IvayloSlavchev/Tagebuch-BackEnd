@@ -11,7 +11,7 @@ router.use((req, res, next) => {
 })
 
 router.get('/:id', async (req, res) => {
-    const result = await db.promise().query(`SELECT * FROM notebookrecords`);
+    const result = await db.promise().query(`SELECT * FROM notebookRecords`);
     
     res.status(200).send(result[0])
 })
@@ -61,7 +61,7 @@ router.put('/:id', (req, res) => {
         return;
     }
 
-    db.promise().query(`UPDATE notebookrecords SET notebookName='${notebookName}', notebookDescription='${notebookDescription}', notebookTexts='${notebookTexts}' WHERE notebookName='${notebookName}'`)
+    db.promise().query(`UPDATE notebookRecords SET notebookName='${notebookName}', notebookDescription='${notebookDescription}', notebookTexts='${notebookTexts}' WHERE notebookName='${notebookName}'`)
     res.status(200).send({ msg: 'Updated' })
 })
 router.delete('/:id', (req, res) => {
@@ -72,7 +72,7 @@ router.delete('/:id', (req, res) => {
         return;
     }
 
-    db.promise().query(`DELETE FROM notebookrecords WHERE notebookName='${notebookName}'`);
+    db.promise().query(`DELETE FROM notebookRecords WHERE notebookName='${notebookName}'`);
     res.status(200).send('Notebook deleted successfully');
 })
 module.exports = router
