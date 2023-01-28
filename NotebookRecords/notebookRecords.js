@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
                 [notebookName],
                 function (err, response) {
                     if (err) {
-                        throw new Error(err);
+                        return console.log(err);
                     } else {
                         if (response?.length == 0) {
                             db.promise().query(`INSERT INTO notebookRecords(notebookName, notebookDescription, notebookTexts, ownedBy, user_id) VALUES('${notebookName}', '${notebookDescription}', '${notebookTexts}', '${ownedBy}', '${user_id[0][0].id}')`)
@@ -47,7 +47,7 @@ router.post('/', async (req, res) => {
                     }
                 })
         } catch(error) {
-            throw new Error(error);
+            return console.log(err);
         }
     }
 

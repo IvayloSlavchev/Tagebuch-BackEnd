@@ -12,7 +12,7 @@ router.use((req, res, next) => {
 })
 router.post('/registration', async (req, res) => {
     let { username, email, phone, password, role, schoolName } = req.body;
-
+x
     password = password.toString();
     const passwordHash = await bcrypt.hash(password, 10);
     password = passwordHash;
@@ -46,7 +46,6 @@ router.post('/registration', async (req, res) => {
 })
 router.get('/login', async (req, res) => {
     const result = await db.promise().query(`SELECT * FROM users`)
-    console.log(result)
     res.status(200).send(result[0])
 })
 router.post('/login', async (req, res) => {
@@ -54,16 +53,16 @@ router.post('/login', async (req, res) => {
 
     const validCredentials = await db.promise().query(`SELECT * FROM users WHERE email='${email}'`);
 
-    validCredentials[0].map(async (item) => {
-
+    if(validCredentials[0].length === 0){
+        return res.status(404).send('Not found')
+    }
+    validCredentials[0].map(async (item) => {   
         const validPassword = await bcrypt.compare(password, item.password);
-
         try{
             if (validPassword) {
                 return res.status(200).send('Success')
             } else {
-                res.status(404).send('Not found');
-                console.log('Fail')
+                return res.status(404).send('Not found');
             }
         } catch(error){
             console.error(error);
