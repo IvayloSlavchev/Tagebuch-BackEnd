@@ -33,7 +33,7 @@ router.post('/', (req, res) => {
     }
 })
 
-router.put('/', (req, res) => {
+router.put('/:id', (req, res) => {
     let { username, userReview } = req.body;
 
     db.promise().query(`UPDATE reviews SET userReview='${userReview}' WHERE username='${username}'`);
