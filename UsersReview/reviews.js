@@ -6,8 +6,7 @@ const router = Router();
 router.use(cors());
 
 router.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "https://tagebuch-api-production.onrender.com");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    console.log('Request made to /reviews');
     next();
   });
 router.get('/', async(req, res) => {
