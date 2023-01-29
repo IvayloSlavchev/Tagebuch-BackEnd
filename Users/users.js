@@ -12,7 +12,7 @@ router.use((req, res, next) => {
 })
 router.post('/registration', async (req, res) => {
     let { username, email, phone, password, role, schoolName } = req.body;
-x
+
     password = password.toString();
     const passwordHash = await bcrypt.hash(password, 10);
     password = passwordHash;
