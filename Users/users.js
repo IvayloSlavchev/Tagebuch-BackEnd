@@ -3,7 +3,6 @@ const db = require('../database')
 const router = Router();
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-const bodyParser = require('body-parser');
 
 router.use(cors());
 
