@@ -26,8 +26,7 @@ router.post('/', async (req, res) => {
     const user_id = await db.promise().query(`SELECT id FROM users WHERE username=?`, [ownedBy]);
 
     if (!user_id) {
-        res.status(404).send('User not found');
-        return;
+        return res.status(404).send('User not found');
     }
 
     db.promise().query('SET FOREIGN_KEY_CHECKS=0');
@@ -36,12 +35,12 @@ router.post('/', async (req, res) => {
         try {
             db.query(`SELECT * FROM notebookRecords WHERE notebookName= ?`,
                 [notebookName],
-                function (err, response) {
+                async function (err, response) {
                     if (err) {
                         return console.log(err);
                     } else {
                         if (response?.length == 0) {
-                            db.promise().query(`INSERT INTO notebookRecords(notebookName, notebookDescription, notebookTexts, ownedBy, user_id) VALUES(?, ?, ?, ?, ?)`, [notebookName, notebookDescription, notebookTexts, ownedBy, user_id[0][0].id]);
+                            await db.promise().query(`INSERT INTO notebookRecords(notebookName, notebookDescription, notebookTexts, ownedBy, user_id) VALUES(?, ?, ?, ?, ?)`, [notebookName, notebookDescription, notebookTexts, ownedBy, user_id[0][0].id]);
                             res.status(201).send('Notebook created!')
                         } else {
                             res.status(409).send('Notebook already exists');
