@@ -29,10 +29,10 @@ router.post('/registration', async (req, res) => {
                     if (response?.length == 0) {
                         db.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
                         VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName])
-                        res.status(201).send({ msg: 'Created user' })
+                        res.status(201).json({ msg: 'Created user' })
                         return;
                     } else {
-                        res.status(409).send('Username already exists')
+                        res.status(409).json({ msg: 'Username already exists' })
                         return;
                     }
                 }
@@ -61,9 +61,9 @@ router.post('/login', async (req, res) => {
         const validPassword = await bcrypt.compare(password, item.password);
         try{
             if (validPassword) {
-                return res.status(200).send('Success')
+                return res.status(200).json({ msg: 'Success' })
             } else {
-                return res.status(404).send('Not found');
+                return res.status(404).json({ msg: 'Not found' });
             }
         } catch(error){
             console.error(error);

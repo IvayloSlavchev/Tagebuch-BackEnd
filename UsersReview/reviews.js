@@ -14,7 +14,7 @@ router.use(function (req, res, next) {
 router.get('/', async (req, res) => {
     const reviews = await db.promise().query(`SELECT * FROM reviews`);
 
-    return res.status(200).send(reviews[0])
+    return res.status(200).json({ msg: reviews[0] })
 })
 
 router.post('/', (req, res) => {
@@ -28,9 +28,9 @@ router.post('/', (req, res) => {
     if (username && reviewTitle && userReview) {
         try {
             db.promise().query(`INSERT INTO reviews(username, reviewTitle, userReview) VALUES (?, ?, ?)`, [username.trim(), reviewTitle.trim(), userReview.trim()]);
-            res.status(200).send('Review added successfully!')
+            res.status(200).json({ msg: 'Review added successfully!' })
         } catch (error) {
-            res.status(409).send(error);
+            res.status(409).json({ msg: error });
         }
     }
 })
@@ -39,7 +39,7 @@ router.delete('/', async (req, res) => {
     let { username, userReview } = req.body;
 
     if (!username || !userReview) {
-        res.status(404).send('Not found');
+        res.status(404).json({ msg: 'Not found' });
         return;
     }
 
@@ -50,14 +50,14 @@ router.delete('/', async (req, res) => {
             const isCommentExist = Object.values(getUserCommentFromDatabase[0][0])
 
             if (isCommentExist == 0) {
-                return res.status(404).send('User comment not found');
+                return res.status(404).json({ msg: 'User comment not found' });
             }
 
             db.promise().query(`DELETE FROM reviews WHERE username=? AND userReview=?`, [username, userReview])
-            return res.status(200).send('Comment deleted successfully')
+            return res.status(200).json({ msg: 'Comment deleted successfully' })
 
         } catch (error) {
-            return res.status(404).send(error)
+            return res.status(404).json({ msg: error })
         }
     }
 
