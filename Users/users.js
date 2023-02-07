@@ -52,7 +52,7 @@ router.get('/login', async (req, res) => {
 router.post('/login', async (req, res) => {
     let { username, email, password } = req.body;
 
-    const validCredentials = await db.promise().query(`SELECT * FROM users WHERE email=${email}`);
+    const validCredentials = await db.promise().query(`SELECT * FROM users WHERE email='${email}'`);
 
     if(validCredentials[0].length === 0){
         return res.status(404).send('Not found')
