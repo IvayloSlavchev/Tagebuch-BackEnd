@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
                         return console.log(err);
                     } else {
                         if (response?.length == 0) {
-                            db.promise().query(`INSERT INTO notebookRecords(notebookName, notebookDescription, notebookTexts, ownedBy, user_id) VALUES('${notebookName}', '${notebookDescription}', '${notebookTexts}', '${ownedBy}', '${user_id[0][0].id}')`)
+                            db.promise().query(`INSERT INTO notebookRecords(notebookName, notebookDescription, notebookTexts, ownedBy, user_id) VALUES('${notebookName}', '${notebookDescription}', '${notebookTexts}', '${ownedBy}', '${user_id[0].id}')`)
                             res.status(201).send('Notebook created!')
                         } else {
                             res.status(409).send('Notebook already exists');
