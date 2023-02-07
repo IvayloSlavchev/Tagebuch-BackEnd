@@ -16,28 +16,18 @@ router.post('/registration', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     try {
-         if (username && email && phone && password && role && schoolName) {
-            db.query(`SELECT * FROM users WHERE username=?`,
-            [username],
-            function (err, response) {
-                if (err) {
-                    console.log(err)
-                    return;
-                } else {
-                    if (response?.length == 0) {
-                        db.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
-                        VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName])
-                        res.status(201).json({ msg: 'Created user' })
-                        return;
-                    } else {
-                        res.status(409).json({ msg: 'Username already exists' })
-                        return;
-                    }
-                }
-            })  
+        if (username && email && phone && password && role && schoolName) {
+            const isUsernameAvaiable = await db.promise().query(`SELECT * FROM users WHERE username=?`, [username])
+
+            if (isUsernameAvaiable[0].length == 0) {
+                db.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
+                    VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName])
+
+                return res.status(201).json({ msg: 'Created user' })
+            }
+            return res.status(409).json({ msg: 'Username already exists' })
         }
-            
-    }catch(error){
+    } catch (error) {
         console.log(error);
         return;
     }
@@ -51,18 +41,19 @@ router.post('/login', async (req, res) => {
 
     const validCredentials = await db.promise().query(`SELECT * FROM users WHERE email='${email}'`);
 
-    if(validCredentials[0].length === 0){
+    if (validCredentials[0].length === 0) {
         return res.status(404).send('Not found')
     }
-    validCredentials[0].map(async (item) => {   
+    validCredentials[0].map(async (item) => {
         const validPassword = await bcrypt.compare(password, item.password);
-        try{
+        console.log(validPassword)
+        try {
             if (validPassword) {
-                return res.status(200).json({ msg: 'Success' })
+                return res.status(200).json({ msg: 'User logged in' });
             } else {
-                return res.status(404).json({ msg: 'Not found' });
+                return res.status(400).json({ msg: 'Invalid password' });
             }
-        } catch(error){
+        } catch (error) {
             console.error(error);
             return;
         }

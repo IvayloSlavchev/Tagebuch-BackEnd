@@ -9,15 +9,10 @@ let db = mysql.createConnection({
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT
-}).promise();
+})
 db.connect(function (error) {
-    try {
-        if (error) {
-            return console.error('Error: ' + error);
-        }
-        return db
-    } catch (err) {
-        return err;
+    if(error) {
+        return error;
     } 
 })
 
