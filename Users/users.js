@@ -3,8 +3,10 @@ const db = require('../database')
 const router = Router();
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const bodyParser = require('body-parser');
 
-router.use(cors())
+router.use(cors());
+router.use(bodyParser.urlencoded({ extended: false }))
 
 router.use((req, res, next) => {
     console.log('Request made to /users')
@@ -13,9 +15,8 @@ router.use((req, res, next) => {
 router.post('/registration', async (req, res) => {
     let { username, email, phone, password, role, schoolName } = req.body;
 
-    password = password.toString();
+    
     const passwordHash = await bcrypt.hash(password, 10);
-    password = passwordHash;
 
     try {
          if (username && email && phone && password && role && schoolName) {
@@ -28,7 +29,7 @@ router.post('/registration', async (req, res) => {
                 } else {
                     if (response?.length == 0) {
                         db.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
-                        VALUES('${username}' ,'${email}', '${phone}', '${password}', '${role}', '${schoolName}')`)
+                        VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName])
                         res.status(201).send({ msg: 'Created user' })
                         return;
                     } else {
@@ -51,7 +52,7 @@ router.get('/login', async (req, res) => {
 router.post('/login', async (req, res) => {
     let { username, email, password } = req.body;
 
-    const validCredentials = await db.promise().query(`SELECT * FROM users WHERE email='${email}'`);
+    const validCredentials = await db.promise().query(`SELECT * FROM users WHERE email=? AND username=?`, [email, username]);
 
     if(validCredentials[0].length === 0){
         return res.status(404).send('Not found')

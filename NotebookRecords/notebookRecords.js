@@ -1,7 +1,8 @@
- const { Router } = require('express');
+const { Router } = require('express');
 const cors = require('cors');
 const db = require('../database.js');
 const router = Router();
+const bodyParser = require('body-parser');
 
 router.use(cors());
 
@@ -9,10 +10,11 @@ router.use((req, res, next) => {
     console.log('Request made to /notebookrecords')
     next();
 })
+router.use(bodyParser.urlencoded({ extended: false }))
 
 router.get('/:id', async (req, res) => {
     const result = await db.promise().query(`SELECT * FROM notebookRecords`);
-    
+
     res.status(200).send(result[0])
 })
 router.post('/', async (req, res) => {
@@ -21,7 +23,7 @@ router.post('/', async (req, res) => {
         res.status(449).send('Too short name');
     }
 
-    const user_id = await db.promise().query(`SELECT id FROM users WHERE username='${ownedBy}'`);
+    const user_id = await db.promise().query(`SELECT id FROM users WHERE username=?`, [ownedBy]);
 
     if (!user_id) {
         res.status(404).send('User not found');
@@ -39,20 +41,20 @@ router.post('/', async (req, res) => {
                         return console.log(err);
                     } else {
                         if (response?.length == 0) {
-                            db.promise().query(`INSERT INTO notebookRecords(notebookName, notebookDescription, notebookTexts, ownedBy, user_id) VALUES('${notebookName}', '${notebookDescription}', '${notebookTexts}', '${ownedBy}', '${user_id[0].id}')`)
+                            db.promise().query(`INSERT INTO notebookRecords(notebookName, notebookDescription, notebookTexts, ownedBy, user_id) VALUES(?, ?, ?, ?, ?)`, [notebookName, notebookDescription, notebookTexts, ownedBy, user_id[0][0].id]);
                             res.status(201).send('Notebook created!')
                         } else {
                             res.status(409).send('Notebook already exists');
                         }
                     }
                 })
-        } catch(error) {
+        } catch (error) {
             return console.log(err);
         }
     }
 
 })
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
     let { notebookName, notebookDescription, notebookTexts } = req.body;
 
     if (!notebookTexts) {
@@ -60,18 +62,33 @@ router.put('/:id', (req, res) => {
         return;
     }
 
-    db.promise().query(`UPDATE notebookRecords SET notebookName='${notebookName}', notebookDescription='${notebookDescription}', notebookTexts='${notebookTexts}' WHERE notebookName='${notebookName}'`)
+    await db.promise().query(`UPDATE notebookRecords SET notebookName=?, notebookDescription=?, notebookTexts=? WHERE notebookName=?`, [notebookName, notebookDescription, notebookTexts, notebookName])
     res.status(200).send({ msg: 'Updated' })
 })
-router.delete('/:id', (req, res) => {
+
+router.delete('/:id', async (req, res) => {
     let { notebookName } = req.body;
 
     if (!notebookName) {
-        res.status(404).send('Id not found');
+        res.status(404).send('Please enter notebook name');
         return;
     }
 
-    db.promise().query(`DELETE FROM notebookRecords WHERE notebookName='${notebookName}'`);
-    res.status(200).send('Notebook deleted successfully');
+    if(notebookName) {
+        try {
+            const countOfGivenNotebookNameInDatabase = await db.promise().query(`SELECT COUNT(notebookName) FROM notebookRecords WHERE notebookName=?`, [notebookName]);
+            const gettingValuesFromDatabase = Object.values(countOfGivenNotebookNameInDatabase[0][0]);
+
+            console.log(gettingValuesFromDatabase[0])
+            if(gettingValuesFromDatabase[0] == 0){
+                return res.status(404).send('Notebook not found!')
+            }
+
+            await db.promise().query(`DELETE FROM notebookRecords WHERE notebookName=?`, [notebookName])
+            return res.status(200).send('Deleted successfully')
+        } catch(error) {
+            return res.status(404).send('Not found');
+        }
+    }
 })
 module.exports = router

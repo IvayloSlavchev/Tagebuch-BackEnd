@@ -2,8 +2,10 @@ const { Router } = require('express')
 const cors = require('cors');
 const db = require('../database.js');
 const router = Router();
+const bodyParser = require('body-parser');
 
 router.use(cors());
+router.use(bodyParser.urlencoded({ extended: false }))
 
 router.use(function (req, res, next) {
     console.log('Request made to /reviews');
@@ -25,7 +27,7 @@ router.post('/', (req, res) => {
 
     if(username && reviewTitle && userReview){
         try{
-            db.promise().query(`INSERT INTO reviews(username, reviewTitle, userReview) VALUES ('${username}', '${reviewTitle}', '${userReview}')`);
+            db.promise().query(`INSERT INTO reviews(username, reviewTitle, userReview) VALUES (?, ?, ?)`, [username, reviewTitle, userReview]);
             res.status(200).send('Review added successfully!')
         } catch(error){
             res.status(409).send(error);
@@ -36,7 +38,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
     let { username, userReview } = req.body;
 
-    db.promise().query(`UPDATE reviews SET userReview='${userReview}' WHERE username='${username}'`);
+    db.promise().query(`UPDATE reviews SET userReview=? WHERE username=?`, [userReview, username]);
     res.status(200).send('Comment updated successfully');
 })
 
@@ -48,7 +50,7 @@ router.delete('/', (req, res) => {
         return;
     }
 
-    db.promise().query(`DELETE FROM reviews WHERE username='${username}' AND userReview='${userReview}'`)
+    db.promise().query(`DELETE FROM reviews WHERE username=? AND userReview=?`, [username, userReview])
     res.status(200).send('Review deleted successfully');
 })
 
