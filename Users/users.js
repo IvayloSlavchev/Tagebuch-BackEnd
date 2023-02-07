@@ -14,7 +14,6 @@ router.use((req, res, next) => {
 router.post('/registration', async (req, res) => {
     let { username, email, phone, password, role, schoolName } = req.body;
 
-    
     const passwordHash = await bcrypt.hash(password, 10);
 
     try {
@@ -53,7 +52,6 @@ router.post('/login', async (req, res) => {
 
     const validCredentials = await db.promise().query(`SELECT * FROM users WHERE email='${email}'`);
 
-    console.log(validCredentials[0])
     if(validCredentials[0].length === 0){
         return res.status(404).send('Not found')
     }
