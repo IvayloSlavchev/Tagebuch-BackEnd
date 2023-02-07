@@ -6,7 +6,6 @@ const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 
 router.use(cors());
-router.use(bodyParser.urlencoded({ extended: false }))
 
 router.use((req, res, next) => {
     console.log('Request made to /users')
@@ -54,6 +53,7 @@ router.post('/login', async (req, res) => {
 
     const validCredentials = await db.promise().query(`SELECT * FROM users WHERE email='${email}'`);
 
+    console.log(validCredentials[0])
     if(validCredentials[0].length === 0){
         return res.status(404).send('Not found')
     }
