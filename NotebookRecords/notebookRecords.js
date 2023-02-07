@@ -18,6 +18,7 @@ router.get('/:id', async (req, res) => {
     res.status(200).send(result[0])
 })
 router.post('/', async (req, res) => {
+    
     let { notebookName, notebookDescription, notebookTexts, ownedBy } = req.body;
     if (notebookName.length < 3) {
         res.status(449).send('Too short name');
