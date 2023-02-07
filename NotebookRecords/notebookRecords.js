@@ -51,7 +51,6 @@ router.post('/', async (req, res) => {
             return console.log(err);
         }
     }
-
 })
 router.put('/:id', async (req, res) => {
     let { notebookName, notebookDescription, notebookTexts } = req.body;
