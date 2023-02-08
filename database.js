@@ -18,6 +18,5 @@ module.exports = function () {
             console.log(`Database connection successfull: ${db.threadId}`);
         }
     })
-
     return db;
 }
