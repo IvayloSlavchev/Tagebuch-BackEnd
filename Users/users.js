@@ -40,8 +40,8 @@ router.post('/login', async (req, res) => {
     const doesUserExist = await db.promise().query(`SELECT * FROM users WHERE email=?`, [email]);
 
     if(doesUserExist[0].length === 0) {
-        return res.status(404).send('User not found')
+        return res.status(404).json({ msg: 'User not found' })
     }
-    return res.status(200).send('Logged in')
+    return res.status(200).json({ msg: 'Logged in' })
 })
 module.exports = router
