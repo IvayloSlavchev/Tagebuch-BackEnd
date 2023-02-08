@@ -40,6 +40,7 @@ router.post('/registration', async (req, res) => {
     }
 })
 
+
 router.post('/login', async (req, res) => {
     let { username, email, password } = req.body;
 
