@@ -45,6 +45,7 @@ router.post('/login', async (req, res) => {
     let { username, email, password } = req.body;
 
     try {
+        
         const doesUserExist = await connection.promise().query(`SELECT * FROM users WHERE email=?`, [email]);
         
         if (doesUserExist[0].length === 0) {
