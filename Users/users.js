@@ -1,12 +1,11 @@
 const { Router } = require('express');
-const connectToDatabase = require('../database')
+const { db } = require('../database.js')
 const router = Router();
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 
 router.use(cors());
 
-let connection = connectToDatabase();
 router.use((req, res, next) => {
     console.log('Request made to /users')
     next()
@@ -19,18 +18,18 @@ router.post('/registration', async (req, res) => {
 
         if (username && email && phone && password && role && schoolName) {
             try {
-                const isValid = await connection.promise().query(`SELECT * FROM users WHERE username=?`, [username])
+                const isValid = await db.promise().query(`SELECT * FROM users WHERE username=?`, [username])
 
                 if (isValid[0].length === 0) {
-                    await connection.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
+                    await db.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
                             VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName]);
                     return res.status(201).json({ msg: 'Created' })
                 }
 
                 return res.status(400).json({ msg: 'User already exists' })
-                return;
+
             } catch (error) {
-                return res
+                return res.status(400).json({ msg: 'An error occured when tried to register: ' + error })
             }
         }
     } 
@@ -42,7 +41,7 @@ router.post('/login', async (req, res) => {
 
     try {
 
-        const doesUserExist = await connection.promise().query(`SELECT * FROM users WHERE email=?`, [email]);
+        const doesUserExist = await db.promise().query(`SELECT * FROM users WHERE email=?`, [email]);
 
         if (doesUserExist[0].length === 0) {
             return res.status(404).json({ msg: 'User not found' })
