@@ -9,6 +9,7 @@ module.exports = function () {
         user: process.env.MYSQL_ADDON_USER,
         port: process.env.MYSQL_ADDON_PORT,
         password: process.env.MYSQL_ADDON_PASSWORD,
+        uri: process.env.MYSQL_ADDON_URI,
     })
     db.connect(function (err) {
         if (err) {
