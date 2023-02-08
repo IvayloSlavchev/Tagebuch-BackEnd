@@ -24,18 +24,13 @@ router.post('/registration', async (req, res) => {
                 if (isValid[0].length === 0) {
                     await connection.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
                             VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName]);
-                    res.status(201).json({ msg: 'Created' })
-                    connection.destroy();
-                    return;
+                    return res.status(201).json({ msg: 'Created' })
                 }
 
-                res.status(400).json({ msg: 'User already exists' })
-                connection.destroy();
+                return res.status(400).json({ msg: 'User already exists' })
                 return;
             } catch (error) {
-                res
-                connection.destroy();
-                return;
+                return res
             }
         }
     } 
@@ -50,25 +45,19 @@ router.post('/login', async (req, res) => {
         const doesUserExist = await connection.promise().query(`SELECT * FROM users WHERE email=?`, [email]);
 
         if (doesUserExist[0].length === 0) {
-            res.status(404).json({ msg: 'User not found' })
-            connection.destroy();
-            return;
+            return res.status(404).json({ msg: 'User not found' })
         }
 
         const hashedPassword = doesUserExist[0].map(item => item.password);
         const doesUserProvideCorrectPassword = await bcrypt.compare(password.toString(), hashedPassword.toString());
 
         if (doesUserProvideCorrectPassword === false) {
-            res.status(409).json({ msg: 'Incorrect password' })
-            connection.destroy();
-            return;
+            return res.status(409).json({ msg: 'Incorrect password' })
         }
 
-       res.status(200).json({ msg: 'Logged in' })
-       connection.destroy();
+       return res.status(200).json({ msg: 'Logged in' })
     } catch (error) {
-         res.status(400).json({ msg: 'Error occured while trying to login: ' + error });
-         connection.destroy();
+         return res.status(400).json({ msg: 'Error occured while trying to login: ' + error });
     }
 })
 module.exports = router
