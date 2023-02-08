@@ -46,7 +46,7 @@ router.post('/login', async (req, res) => {
     }
     validCredentials[0].map(async (item) => {
         const validPassword = await bcrypt.compare(password, item.password);
-        console.log(validPassword)
+        
         try {
             if (validPassword) {
                 return res.status(200).json({ msg: 'User logged in' });

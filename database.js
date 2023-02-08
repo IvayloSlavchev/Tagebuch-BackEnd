@@ -10,10 +10,15 @@ let db = mysql.createConnection({
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT
 })
-db.connect(function (error) {
-    if(error) {
-        return error;
-    } 
-})
+
+try {
+    db.connect(function (error) {
+        if (error) {
+            return "Database errror: " + error;
+        }
+    })
+} catch (error) {
+    console.log('Error at database: ' + error)
+}
 
 module.exports = db;
