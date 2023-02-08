@@ -43,11 +43,23 @@ router.post('/registration', async (req, res) => {
 router.post('/login', async (req, res) => {
     let { username, email, password } = req.body;
 
-    const doesUserExist = await connection.promise().query(`SELECT * FROM users WHERE email=?`, [email]);
+    try {
+        const doesUserExist = await connection.promise().query(`SELECT * FROM users WHERE email=?`, [email]);
+        
+        if (doesUserExist[0].length === 0) {
+            return res.status(404).json({ msg: 'User not found' })
+        }
+        
+        const hashedPassword = doesUserExist[0].map(item => item.password);
+        const doesUserProvideCorrectPassword = await bcrypt.compare(password.toString(), hashedPassword.toString());
 
-    if (doesUserExist[0].length === 0) {
-        return res.status(404).json({ msg: 'User not found' })
+        if(doesUserProvideCorrectPassword === false) {
+            return res.status(409).json({ msg: 'Incorrect password' })
+        }
+
+        return res.status(200).json({ msg: 'Logged in' })
+    } catch (error) {
+        return res.status(400).json({ msg: 'Error occured while trying to login: ' + error });
     }
-    return res.status(200).json({ msg: 'Logged in' })
 })
 module.exports = router
