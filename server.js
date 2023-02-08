@@ -7,7 +7,14 @@ const notebookRecords = require('./NotebookRecords/notebookRecords.js');
 const reviews = require('./UsersReview/reviews.js');
 
 dotenv.config();
-app.use(cors());
+
+const corsOptions ={
+   origin:'*', 
+   credentials:true,            //access-control-allow-credentials:true
+   optionSuccessStatus:200,
+}
+
+app.use(cors(corsOptions))
 
 let port = process.env.PORT || 3001;
 app.use(express.json());
