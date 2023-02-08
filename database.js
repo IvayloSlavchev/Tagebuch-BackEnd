@@ -21,4 +21,23 @@ try {
     console.log('Error at database: ' + error)
 }
 
-module.exports = db;
+async function registerUser(username, email, phone, password, role, schoolName) {
+    const isUsernameAvaiable = await db.promise().query(`SELECT * FROM users WHERE username=?`, [username])
+
+    if (isUsernameAvaiable[0].length == 0) {
+        await db.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
+            VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName], (err, response) => {
+                if(err){
+                    return err
+                }
+            })
+        
+        return;
+    }
+    return;
+}
+
+module.exports = {
+    db,
+    registerUser
+};

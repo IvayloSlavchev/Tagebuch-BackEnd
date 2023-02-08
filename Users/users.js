@@ -1,10 +1,10 @@
 const { Router } = require('express');
-const db = require('../database')
+const { db, registerUser } = require('../database')
 const router = Router();
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 
-router.use(cors());
+
 
 router.use((req, res, next) => {
     console.log('Request made to /users')
@@ -17,18 +17,28 @@ router.post('/registration', async (req, res) => {
 
     try {
         if (username && email && phone && password && role && schoolName) {
-            const isUsernameAvaiable = await db.promise().query(`SELECT * FROM users WHERE username=?`, [username])
-
-            if (isUsernameAvaiable[0].length == 0) {
-                db.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
-                    VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName])
-
-                return res.status(201).json({ msg: 'Created user' })
+            try {
+                registerUser(username, email, phone, password, role, schoolName);
+                res.status(201).json({ msg: 'User created' })
+            } catch(err) {
+                res.status(400).send('An error has occured when trying to register')
             }
-            return res.status(409).json({ msg: 'Username already exists' })
+            // const isUsernameAvaiable = await db.promise().query(`SELECT * FROM users WHERE username=?`, [username])
+
+            // if (isUsernameAvaiable[0].length == 0) {
+            //     await db.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
+            //         VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName], (err, response) => {
+            //             if(err){
+            //                 res.status(400).json({ msg: 'An error has occured when trying to register' })
+            //             }
+            //         })
+                
+            //     return res.status(201).json({ msg: 'Created user' })
+            // }
+            // return res.status(409).json({ msg: 'Username already exists' })
         }
     } catch (error) {
-        console.log(error);
+        console.log('An error occured when trying to register' + error);
         return;
     }
 })
@@ -46,15 +56,15 @@ router.post('/login', async (req, res) => {
     }
     validCredentials[0].map(async (item) => {
         const validPassword = await bcrypt.compare(password, item.password);
-        
+
         try {
             if (validPassword) {
-                return res.status(200).json({ msg: 'User logged in' });
+                return res.status(200).json({ msg: 'Successfully logged in' });
             } else {
                 return res.status(400).json({ msg: 'Invalid password' });
             }
         } catch (error) {
-            console.error(error);
+            console.error("Login error " + error);
             return;
         }
 
