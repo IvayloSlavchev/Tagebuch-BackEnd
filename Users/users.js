@@ -20,16 +20,21 @@ router.post('/registration', async (req, res) => {
     if (username && email && phone && password && role && schoolName) {
         try {
             const isValid = await connection.promise().query(`SELECT * FROM users WHERE username=?`, [username])
-          
+
             if (isValid[0].length === 0) {
                 await connection.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
                             VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName]);
-                return res.status(201).json({ msg: 'Created' })
+                res.status(201).json({ msg: 'Created' })
+                connection.destroy();
+                return;
             }
-            
-            return res.status(400).json({ msg: 'User already exists' })
+
+            res.status(400).json({ msg: 'User already exists' })
+            connection.destroy();
+            return;
         } catch (error) {
             console.log('An error occured when trying to register: ' + error);
+            connection.destroy();
             return;
         }
     }
@@ -40,7 +45,7 @@ router.post('/login', async (req, res) => {
 
     const doesUserExist = await connection.promise().query(`SELECT * FROM users WHERE email=?`, [email]);
 
-    if(doesUserExist[0].length === 0) {
+    if (doesUserExist[0].length === 0) {
         return res.status(404).json({ msg: 'User not found' })
     }
     return res.status(200).json({ msg: 'Logged in' })
