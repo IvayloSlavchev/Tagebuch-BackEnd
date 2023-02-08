@@ -1,10 +1,10 @@
 const { Router } = require('express');
-const { db, registerUser } = require('../database')
+const { db } = require('../database')
 const router = Router();
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 
-
+router.use(cors());
 
 router.use((req, res, next) => {
     console.log('Request made to /users')
@@ -17,25 +17,20 @@ router.post('/registration', async (req, res) => {
 
     try {
         if (username && email && phone && password && role && schoolName) {
-            try {
-                registerUser(username, email, phone, password, role, schoolName);
-                res.status(201).json({ msg: 'User created' })
-            } catch(err) {
-                res.status(400).send('An error has occured when trying to register')
-            }
-            // const isUsernameAvaiable = await db.promise().query(`SELECT * FROM users WHERE username=?`, [username])
-
-            // if (isUsernameAvaiable[0].length == 0) {
-            //     await db.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
-            //         VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName], (err, response) => {
-            //             if(err){
-            //                 res.status(400).json({ msg: 'An error has occured when trying to register' })
-            //             }
-            //         })
-                
-            //     return res.status(201).json({ msg: 'Created user' })
-            // }
-            // return res.status(409).json({ msg: 'Username already exists' })
+            await db.promise().query(`SELECT * FROM users WHERE username=?`, [username], async function (err, response) {
+                if (err) {
+                    return err;
+                } else {
+                    if (response?.length === 0) {
+                        await db.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
+                        VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName]);
+        
+                        return res.status(201).json({ msg: 'User created' });
+                    } 
+        
+                    return res.status(400).json({ msg: 'Username already exists' });
+                }
+            })
         }
     } catch (error) {
         console.log('An error occured when trying to register' + error);
