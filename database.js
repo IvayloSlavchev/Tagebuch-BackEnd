@@ -16,11 +16,12 @@ try {
         if (error) {
             return "Database errror: " + error;
         }
+        
+        return db;
     })
 } catch (error) {
     console.log('Error at database: ' + error)
-}
-
+} 
 
 module.exports = {
     db

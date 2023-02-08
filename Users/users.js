@@ -15,26 +15,32 @@ router.post('/registration', async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    try {
-        if (username && email && phone && password && role && schoolName) {
-            await db.promise().query(`SELECT * FROM users WHERE username=?`, [username], async function (err, response) {
+
+    if (username && email && phone && password && role && schoolName) {
+        try {
+            const isValid = await db.promise().query(`SELECT * FROM users WHERE username=?`, [username], async function (err, response) {
                 if (err) {
                     return err;
                 } else {
                     if (response?.length === 0) {
                         await db.promise().query(`INSERT INTO users(username, email, phone, password, role, schoolName) 
-                        VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName]);
-        
+                            VALUES(?, ?, ?, ?, ?, ?)`, [username, email, phone, passwordHash, role, schoolName]);
+    
                         return res.status(201).json({ msg: 'User created' });
-                    } 
-        
+                    }
+    
                     return res.status(400).json({ msg: 'Username already exists' });
                 }
             })
+            if(isValid[0].length == 0) {
+                return res.status(201).json({ msg: 'Successfull registration' })
+            }
+            
+            return res.status(400).json({ msg: 'An error occured while trying to register' })
+        } catch (error) {
+            console.log('An error occured when trying to register' + error);
+            return;
         }
-    } catch (error) {
-        console.log('An error occured when trying to register' + error);
-        return;
     }
 })
 router.get('/login', async (req, res) => {
