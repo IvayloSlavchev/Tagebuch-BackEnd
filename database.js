@@ -4,11 +4,11 @@ module.exports = function () {
     dotenv.config();
 
     let db = mysql.createConnection({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        database: process.env.DB_NAME,
-        password: process.env.DB_PASSWORD,
-        port: process.env.DB_PORT
+        host: process.env.MYSQL_ADDON_HOST,
+        database: process.env.MYSQL_ADDON_DB,
+        user: process.env.MYSQL_ADDON_USER,
+        port: process.env.MYSQL_ADDON_PORT,
+        password: process.env.MYSQL_ADDON_PASSWORD,
     })
     db.connect(function (err) {
         if (err) {
