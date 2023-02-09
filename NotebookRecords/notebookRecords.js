@@ -13,13 +13,17 @@ router.use((req, res, next) => {
 router.use(bodyParser.urlencoded({ extended: false }))
 
 router.get('/', async (req, res) => {
-    const result = await db.promise().query(`SELECT * FROM notebookRecords`);
+    try {
+        const result = await db.promise().query(`SELECT * FROM notebookRecords`);
 
-    if(!result) {
-        return res.status(404).send('Notebook not found');
+        if (!result) {
+            return res.status(404).send('Notebook not found');
+        }
+
+        return res.status(200).send(result[0])
+    } catch (error) {
+        return res.status(400).json({ msg: 'Cannot get the book: ' + error })
     }
-
-    res.status(200).send(result[0])
 })
 router.post('/', async (req, res) => {
 
@@ -28,33 +32,37 @@ router.post('/', async (req, res) => {
         res.status(449).json({ msg: 'Too short name' });
     }
 
-    const user_id = await db.promise().query(`SELECT id FROM users WHERE username=?`, [ownedBy]);
+    try {
+        const user_id = await db.promise().query(`SELECT id FROM users WHERE username=?`, [ownedBy]);
 
-    if (!user_id) {
-        return res.status(404).json({ msg: 'User not found' });
-    }
-
-    db.promise().query('SET FOREIGN_KEY_CHECKS=0');
-
-    if (notebookName && ownedBy) {
-        try {
-            db.query(`SELECT * FROM notebookRecords WHERE notebookName= ?`,
-                [notebookName],
-                async function (err, response) {
-                    if (err) {
-                        return console.log(err);
-                    } else {
-                        if (response?.length == 0) {
-                            await db.promise().query(`INSERT INTO notebookRecords(notebookName, notebookDescription, notebookTexts, ownedBy, user_id) VALUES(?, ?, ?, ?, ?)`, [notebookName, notebookDescription, notebookTexts, ownedBy, user_id[0][0].id]);
-                            res.status(201).json({ msg: 'Notebook created!' })
-                        } else {
-                            res.status(409).json({ msg: 'Notebook already exists' });
-                        }
-                    }
-                })
-        } catch (error) {
-            return console.log(err);
+        if (!user_id) {
+            return res.status(404).json({ msg: 'User not found' });
         }
+
+        db.promise().query('SET FOREIGN_KEY_CHECKS=0');
+
+        if (notebookName && ownedBy) {
+            try {
+                db.query(`SELECT * FROM notebookRecords WHERE notebookName= ?`,
+                    [notebookName],
+                    async function (err, response) {
+                        if (err) {
+                            return console.log(err);
+                        } else {
+                            if (response?.length == 0) {
+                                await db.promise().query(`INSERT INTO notebookRecords(notebookName, notebookDescription, notebookTexts, ownedBy, user_id) VALUES(?, ?, ?, ?, ?)`, [notebookName, notebookDescription, notebookTexts, ownedBy, user_id[0][0].id]);
+                                return res.status(201).json({ msg: 'Notebook created!' })
+                            } else {
+                                return res.status(409).json({ msg: 'Notebook already exists' });
+                            }
+                        }
+                    })
+            } catch (error) {
+                return res.status(400).json({ msg: 'Book can\'t: ' + error });
+            }
+        }
+    } catch (error) {
+        return res.status(400).json({ msg: 'Request cannot be proceed: ' + error })
     }
 })
 router.put('/:id', async (req, res) => {
@@ -65,8 +73,12 @@ router.put('/:id', async (req, res) => {
         return;
     }
 
-    await db.promise().query(`UPDATE notebookRecords SET notebookName=?, notebookDescription=?, notebookTexts=? WHERE notebookName=?`, [notebookName, notebookDescription, notebookTexts, notebookName])
-    res.status(200).json({ msg: 'Updated' })
+    try {
+        await db.promise().query(`UPDATE notebookRecords SET notebookName=?, notebookDescription=?, notebookTexts=? WHERE notebookName=?`, [notebookName, notebookDescription, notebookTexts, notebookName])
+        return res.status(200).json({ msg: 'Updated' });
+    } catch (error) {
+        return res.status(400).json({ msg: 'Update count not proceed: ' + error })
+    }
 })
 
 router.delete('/:id', async (req, res) => {

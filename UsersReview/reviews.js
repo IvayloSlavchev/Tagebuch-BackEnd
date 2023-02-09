@@ -12,9 +12,13 @@ router.use(function (req, res, next) {
     next();
 });
 router.get('/', async (req, res) => {
-    const reviews = await db.promise().query(`SELECT * FROM reviews`);
+    try {
+        const reviews = await db.promise().query(`SELECT * FROM reviews`);
 
-    return res.status(200).send(reviews[0])
+        return res.status(200).send(reviews[0])
+    } catch(error) {
+        return res.status(400).send('An error occured: ' + error);
+    }
 })
 
 router.post('/', (req, res) => {
@@ -39,8 +43,7 @@ router.delete('/', async (req, res) => {
     let { username, userReview } = req.body;
 
     if (!username || !userReview) {
-        res.status(404).json({ msg: 'Not found' });
-        return;
+        return res.status(404).json({ msg: 'Not found' });
     }
 
     if (username && userReview) {
