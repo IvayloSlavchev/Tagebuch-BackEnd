@@ -15,7 +15,7 @@ router.use(bodyParser.urlencoded({ extended: false }))
 router.get('/:id', async (req, res) => {
     const result = await db.promise().query(`SELECT * FROM notebookRecords`);
 
-    res.status(200).json({ msg: result[0] })
+    res.status(200).send(result[0])
 })
 router.post('/', async (req, res) => {
 

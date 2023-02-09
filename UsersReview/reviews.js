@@ -14,7 +14,7 @@ router.use(function (req, res, next) {
 router.get('/', async (req, res) => {
     const reviews = await db.promise().query(`SELECT * FROM reviews`);
 
-    return res.status(200).json({ msg: reviews[0] })
+    return res.status(200).send(reviews[0])
 })
 
 router.post('/', (req, res) => {
