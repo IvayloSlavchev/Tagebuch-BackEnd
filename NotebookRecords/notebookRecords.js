@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const cors = require('cors');
-const db = require('../database.js');
+const { db } = require('../database.js');
 const router = Router();
 const bodyParser = require('body-parser');
 
