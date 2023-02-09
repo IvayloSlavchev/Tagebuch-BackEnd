@@ -12,8 +12,12 @@ router.use((req, res, next) => {
 })
 router.use(bodyParser.urlencoded({ extended: false }))
 
-router.get('/:id', async (req, res) => {
+router.get('/', async (req, res) => {
     const result = await db.promise().query(`SELECT * FROM notebookRecords`);
+
+    if(!result) {
+        return res.status(404).send('Notebook not found');
+    }
 
     res.status(200).send(result[0])
 })
